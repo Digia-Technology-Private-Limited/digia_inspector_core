@@ -5,7 +5,7 @@ void main() {
   test('test logger', () {
     final logger = NoOpLogger();
     logger.log(
-      LogEvent.fromJson({
+      DigiaLogEvent.fromJson({
         'id': '123',
         'level': 'info',
         'timestamp': DateTime.now().toIso8601String(),

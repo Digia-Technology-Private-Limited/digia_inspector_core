@@ -1,3 +1,5 @@
+import 'digia_dio_interceptor.dart';
+import 'action_observer.dart';
 import '../models/log_event.dart';
 import '../utils/log_level.dart';
 
@@ -11,7 +13,7 @@ abstract class DigiaLogger {
   /// This is the primary method for sending log events to the logger.
   /// Implementations should handle the event according to their specific
   /// behavior (e.g., storing in memory, writing to file, sending to server).
-  void log(LogEvent event);
+  void log(DigiaLogEvent event);
 
   /// Returns true if this logger accepts events at the specified level.
   ///
@@ -33,6 +35,18 @@ abstract class DigiaLogger {
   ///
   /// After calling this method, the logger should not be used anymore.
   Future<void> close() async {}
+
+  /// Returns the Dio interceptor for automatic network monitoring.
+  ///
+  /// If the logger provides network monitoring capabilities, it should return
+  /// a DigiaDioInterceptor instance. Otherwise, returns null.
+  DigiaDioInterceptor? get dioInterceptor => null;
+
+  /// Returns the action observer for action execution monitoring.
+  ///
+  /// If the logger provides action observability capabilities, it should return
+  /// an ActionObserver instance. Otherwise, returns null.
+  ActionObserver? get actionObserver => null;
 }
 
 /// A no-op logger implementation that discards all log events.
@@ -43,7 +57,7 @@ class NoOpLogger implements DigiaLogger {
   const NoOpLogger();
 
   @override
-  void log(LogEvent event) {
+  void log(DigiaLogEvent event) {
     // Do nothing
   }
 
@@ -58,4 +72,10 @@ class NoOpLogger implements DigiaLogger {
 
   @override
   Future<void> close() async {}
+
+  @override
+  DigiaDioInterceptor? get dioInterceptor => null;
+
+  @override
+  ActionObserver? get actionObserver => null;
 }

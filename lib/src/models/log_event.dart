@@ -5,7 +5,7 @@ import '../utils/timestamp_helper.dart';
 ///
 /// This abstract class provides the foundation for different types of log events
 /// such as network requests, widget tree changes, errors, and custom application logs.
-abstract class LogEvent {
+abstract class DigiaLogEvent {
   /// Unique identifier for this log event.
   final String id;
 
@@ -28,7 +28,7 @@ abstract class LogEvent {
   /// [timestamp] defaults to the current time if not provided.
   /// [category] can be used to group related events (e.g., "network", "ui", "auth").
   /// [tags] provide additional classification (e.g., {"error", "critical", "auth"}).
-  LogEvent({
+  DigiaLogEvent({
     String? id,
     required this.level,
     DateTime? timestamp,
@@ -89,7 +89,7 @@ abstract class LogEvent {
   ///
   /// Note: This returns a generic LogEvent. Specific subclasses should
   /// override this method to return their specific type.
-  static LogEvent fromJson(Map<String, dynamic> json) {
+  static DigiaLogEvent fromJson(Map<String, dynamic> json) {
     return _GenericLogEvent(
       id: json['id'] as String,
       level: LogLevel.fromString(json['level'] as String) ?? LogLevel.info,
@@ -115,7 +115,7 @@ abstract class LogEvent {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is LogEvent && other.id == id;
+    return other is DigiaLogEvent && other.id == id;
   }
 
   @override
@@ -132,7 +132,7 @@ abstract class LogEvent {
 
 /// A generic implementation of LogEvent for cases where we need to create
 /// log events from JSON without knowing the specific subclass.
-class _GenericLogEvent extends LogEvent {
+class _GenericLogEvent extends DigiaLogEvent {
   final String _eventType;
   final String _title;
   final String _description;
