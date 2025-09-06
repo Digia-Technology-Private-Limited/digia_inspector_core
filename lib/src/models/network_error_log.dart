@@ -1,6 +1,5 @@
-import '../utils/log_level.dart';
-import '../utils/timestamp_helper.dart';
-import 'log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
+import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
 /// Represents a network error in the logging system.
 ///
@@ -46,8 +45,8 @@ class NetworkErrorLog extends DigiaLogEvent {
     this.failedMethod,
     super.category = 'network',
     super.tags,
-  }) : errorContext = errorContext ?? {},
-       super(level: LogLevel.error, timestamp: timestamp);
+  })  : errorContext = errorContext ?? {},
+        super(timestamp: timestamp);
 
   @override
   String get eventType => 'network_error';
@@ -64,16 +63,16 @@ class NetworkErrorLog extends DigiaLogEvent {
 
   @override
   Map<String, dynamic> get metadata => {
-    'requestId': requestId,
-    'error': error.toString(),
-    'errorType': error.runtimeType.toString(),
-    'stackTrace': stackTrace?.toString(),
-    'errorContext': errorContext,
-    if (apiName != null) 'apiName': apiName!,
-    if (apiId != null) 'apiId': apiId!,
-    if (failedUrl != null) 'failedUrl': failedUrl!,
-    if (failedMethod != null) 'failedMethod': failedMethod!,
-  };
+        'requestId': requestId,
+        'error': error.toString(),
+        'errorType': error.runtimeType.toString(),
+        'stackTrace': stackTrace?.toString(),
+        'errorContext': errorContext,
+        if (apiName != null) 'apiName': apiName!,
+        if (apiId != null) 'apiId': apiId!,
+        if (failedUrl != null) 'failedUrl': failedUrl!,
+        if (failedMethod != null) 'failedMethod': failedMethod!,
+      };
 
   /// Returns the display name for this error (API name or generic).
   String get displayName => apiName ?? 'Network Error';
@@ -113,8 +112,7 @@ class NetworkErrorLog extends DigiaLogEvent {
   static NetworkErrorLog fromJson(Map<String, dynamic> json) {
     return NetworkErrorLog(
       id: json['id'] as String,
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String) ??
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
           TimestampHelper.now(),
       requestId: json['requestId'] as String?,
       error: json['error'] as String? ?? 'Unknown error',
@@ -129,7 +127,7 @@ class NetworkErrorLog extends DigiaLogEvent {
       category: json['category'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-          <String>{},
+              <String>{},
     );
   }
 

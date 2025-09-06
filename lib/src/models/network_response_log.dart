@@ -1,6 +1,5 @@
-import '../utils/log_level.dart';
-import '../utils/timestamp_helper.dart';
-import 'log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
+import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
 /// Represents an HTTP response in the logging system.
 ///
@@ -45,8 +44,8 @@ class NetworkResponseLog extends DigiaLogEvent {
     this.apiId,
     super.category = 'network',
     super.tags,
-  }) : headers = headers ?? {},
-       super(level: _getLevelFromStatusCode(statusCode), timestamp: timestamp);
+  })  : headers = headers ?? {},
+        super(timestamp: timestamp);
 
   @override
   String get eventType => 'network_response';
@@ -58,21 +57,21 @@ class NetworkResponseLog extends DigiaLogEvent {
   @override
   String get description => apiName != null
       ? 'HTTP response $statusCode for $apiName'
-            '${duration != null ? ' (${duration!.inMilliseconds}ms)' : ''}'
+          '${duration != null ? ' (${duration!.inMilliseconds}ms)' : ''}'
       : 'HTTP response with status code $statusCode'
-            '${duration != null ? ' (${duration!.inMilliseconds}ms)' : ''}';
+          '${duration != null ? ' (${duration!.inMilliseconds}ms)' : ''}';
 
   @override
   Map<String, dynamic> get metadata => {
-    'requestId': requestId,
-    'statusCode': statusCode,
-    'headers': headers,
-    'body': body,
-    'responseSize': responseSize,
-    'duration': duration?.inMilliseconds,
-    if (apiName != null) 'apiName': apiName!,
-    if (apiId != null) 'apiId': apiId!,
-  };
+        'requestId': requestId,
+        'statusCode': statusCode,
+        'headers': headers,
+        'body': body,
+        'responseSize': responseSize,
+        'duration': duration?.inMilliseconds,
+        if (apiName != null) 'apiName': apiName!,
+        if (apiId != null) 'apiId': apiId!,
+      };
 
   /// Returns true if this response indicates success (2xx status code).
   bool get isSuccess => statusCode >= 200 && statusCode < 300;
@@ -121,8 +120,7 @@ class NetworkResponseLog extends DigiaLogEvent {
   static NetworkResponseLog fromJson(Map<String, dynamic> json) {
     return NetworkResponseLog(
       id: json['id'] as String,
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String) ??
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
           TimestampHelper.now(),
       requestId: json['requestId'] as String,
       statusCode: json['statusCode'] as int,
@@ -137,7 +135,7 @@ class NetworkResponseLog extends DigiaLogEvent {
       category: json['category'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-          <String>{},
+              <String>{},
     );
   }
 
@@ -150,19 +148,6 @@ class NetworkResponseLog extends DigiaLogEvent {
         (apiName?.toLowerCase().contains(lowercaseQuery) ?? false) ||
         (apiId?.toLowerCase().contains(lowercaseQuery) ?? false) ||
         statusCode.toString().contains(lowercaseQuery);
-  }
-
-  /// Determines the appropriate log level based on HTTP status code.
-  static LogLevel _getLevelFromStatusCode(int statusCode) {
-    if (statusCode >= 200 && statusCode < 300) {
-      return LogLevel.info;
-    } else if (statusCode >= 300 && statusCode < 400) {
-      return LogLevel.warning;
-    } else if (statusCode >= 400) {
-      return LogLevel.error;
-    } else {
-      return LogLevel.debug;
-    }
   }
 
   @override

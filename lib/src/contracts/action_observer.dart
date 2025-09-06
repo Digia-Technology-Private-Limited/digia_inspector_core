@@ -4,8 +4,14 @@ import 'package:digia_inspector_core/src/models/action_log.dart';
 ///
 /// Implementations of this interface can register to receive notifications
 /// about action lifecycle events including start, progress, completion, and
-/// disabling. This enables debugging, monitoring, and logging of action execution.
+/// disabling. This enables debugging, monitoring, and logging of
+/// action execution.
 abstract class ActionObserver {
+  /// Called when an action is pending
+  ///
+  /// [event] contains the action details and timing information
+  void onActionPending(ActionLog event);
+
   /// Called when an action starts executing
   ///
   /// [event] contains the action details and timing information

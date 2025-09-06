@@ -1,5 +1,4 @@
-import '../utils/log_level.dart';
-import '../utils/timestamp_helper.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 
 /// Base class for all loggable events in the Digia ecosystem.
 ///
@@ -8,9 +7,6 @@ import '../utils/timestamp_helper.dart';
 abstract class DigiaLogEvent {
   /// Unique identifier for this log event.
   final String id;
-
-  /// The severity level of this log event.
-  final LogLevel level;
 
   /// When this log event occurred.
   final DateTime timestamp;
@@ -24,19 +20,17 @@ abstract class DigiaLogEvent {
   /// Creates a new log event.
   ///
   /// [id] should be unique across all log events. If not provided, a UUID will be generated.
-  /// [level] determines the severity of this event.
   /// [timestamp] defaults to the current time if not provided.
   /// [category] can be used to group related events (e.g., "network", "ui", "auth").
   /// [tags] provide additional classification (e.g., {"error", "critical", "auth"}).
   DigiaLogEvent({
     String? id,
-    required this.level,
     DateTime? timestamp,
     this.category,
     Set<String>? tags,
-  }) : id = id ?? _generateId(),
-       timestamp = timestamp ?? TimestampHelper.now(),
-       tags = tags ?? <String>{};
+  })  : id = id ?? _generateId(),
+        timestamp = timestamp ?? TimestampHelper.now(),
+        tags = tags ?? <String>{};
 
   /// The type of this log event (e.g., "network", "error", "custom").
   ///
@@ -75,7 +69,6 @@ abstract class DigiaLogEvent {
     return {
       'id': id,
       'eventType': eventType,
-      'level': level.name,
       'timestamp': TimestampHelper.formatISO(timestamp),
       'title': title,
       'description': description,
@@ -92,23 +85,21 @@ abstract class DigiaLogEvent {
   static DigiaLogEvent fromJson(Map<String, dynamic> json) {
     return _GenericLogEvent(
       id: json['id'] as String,
-      level: LogLevel.fromString(json['level'] as String) ?? LogLevel.info,
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String) ??
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
           TimestampHelper.now(),
       title: json['title'] as String,
       description: json['description'] as String,
       category: json['category'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-          <String>{},
+              <String>{},
       metadata: (json['metadata'] as Map<String, dynamic>?) ?? {},
     );
   }
 
   @override
   String toString() {
-    return 'LogEvent{id: $id, type: $eventType, level: ${level.name}, '
+    return 'LogEvent{id: $id, type: $eventType, '
         'timestamp: ${TimestampHelper.format(timestamp)}, title: $title}';
   }
 
@@ -140,24 +131,17 @@ class _GenericLogEvent extends DigiaLogEvent {
 
   _GenericLogEvent({
     required String id,
-    required LogLevel level,
     required DateTime timestamp,
     required String title,
     required String description,
     required String? category,
     required Set<String> tags,
     required Map<String, dynamic> metadata,
-  }) : _eventType = 'generic',
-       _title = title,
-       _description = description,
-       _metadata = metadata,
-       super(
-         id: id,
-         level: level,
-         timestamp: timestamp,
-         category: category,
-         tags: tags,
-       );
+  })  : _eventType = 'generic',
+        _title = title,
+        _description = description,
+        _metadata = metadata,
+        super(id: id, timestamp: timestamp, category: category, tags: tags);
 
   @override
   String get eventType => _eventType;

@@ -1,5 +1,4 @@
-import '../utils/log_level.dart';
-import 'log_event.dart';
+import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
 /// Action observability event data structure
 ///
@@ -90,7 +89,6 @@ class ActionLog extends DigiaLogEvent {
     this.errorMessage,
     this.stackTrace,
     this.metadata = const {},
-    super.level = LogLevel.info,
   });
 
   /// Create a copy of this log with updated fields
@@ -111,7 +109,6 @@ class ActionLog extends DigiaLogEvent {
     String? errorMessage,
     StackTrace? stackTrace,
     Map<String, dynamic>? metadata,
-    LogLevel? level,
   }) {
     return ActionLog(
       eventId: eventId ?? this.eventId,
@@ -130,7 +127,6 @@ class ActionLog extends DigiaLogEvent {
       errorMessage: errorMessage ?? this.errorMessage,
       stackTrace: stackTrace ?? this.stackTrace,
       metadata: metadata ?? this.metadata,
-      level: level ?? this.level,
     );
   }
 

@@ -1,6 +1,5 @@
-import '../utils/log_level.dart';
-import '../utils/timestamp_helper.dart';
-import 'log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
+import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
 /// Represents an HTTP request in the logging system.
 ///
@@ -49,9 +48,9 @@ class NetworkRequestLog extends DigiaLogEvent {
     this.apiId,
     super.category = 'network',
     super.tags,
-  }) : headers = headers ?? {},
-       queryParameters = queryParameters ?? {},
-       super(level: LogLevel.info, timestamp: timestamp);
+  })  : headers = headers ?? {},
+        queryParameters = queryParameters ?? {},
+        super(timestamp: timestamp);
 
   @override
   String get eventType => 'network_request';
@@ -67,16 +66,16 @@ class NetworkRequestLog extends DigiaLogEvent {
 
   @override
   Map<String, dynamic> get metadata => {
-    'method': method,
-    'url': url.toString(),
-    'headers': headers,
-    'body': body,
-    'queryParameters': queryParameters,
-    'requestSize': requestSize,
-    'requestId': requestId,
-    if (apiName != null) 'apiName': apiName!,
-    if (apiId != null) 'apiId': apiId!,
-  };
+        'method': method,
+        'url': url.toString(),
+        'headers': headers,
+        'body': body,
+        'queryParameters': queryParameters,
+        'requestSize': requestSize,
+        'requestId': requestId,
+        if (apiName != null) 'apiName': apiName!,
+        if (apiId != null) 'apiId': apiId!,
+      };
 
   /// Returns the display name for this request (API name or URL path).
   String get displayName => apiName ?? url.path;
@@ -118,8 +117,7 @@ class NetworkRequestLog extends DigiaLogEvent {
   static NetworkRequestLog fromJson(Map<String, dynamic> json) {
     return NetworkRequestLog(
       id: json['id'] as String,
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String) ??
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
           TimestampHelper.now(),
       method: json['method'] as String,
       url: Uri.parse(json['url'] as String),
@@ -133,7 +131,7 @@ class NetworkRequestLog extends DigiaLogEvent {
       category: json['category'] as String?,
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-          <String>{},
+              <String>{},
     );
   }
 
