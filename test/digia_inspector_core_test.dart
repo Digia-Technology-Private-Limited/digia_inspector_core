@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('test inspector', () {
-    final inspector = NoOpInspector()
+    final inspector = const NoOpInspector()
       ..log(
         DigiaLogEvent.fromJson({
           'id': '123',

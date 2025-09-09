@@ -6,7 +6,9 @@ void main() {
   runApp(const MyApp());
 }
 
+/// Simple example demonstrating Digia Inspector Core usage
 class MyApp extends StatelessWidget {
+  /// Simple example demonstrating Digia Inspector Core usage
   const MyApp({super.key});
 
   @override
@@ -19,7 +21,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Simple example demonstrating Digia Inspector Core usage
 class ExamplePage extends StatelessWidget {
+  /// Simple example demonstrating Digia Inspector Core usage
   const ExamplePage({super.key});
 
   @override
@@ -64,6 +68,7 @@ class ExamplePage extends StatelessWidget {
     );
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   Widget _buildFeatureCard(
     String title,
     String description,
@@ -79,6 +84,7 @@ class ExamplePage extends StatelessWidget {
     );
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   void _demonstrateLogging(BuildContext context) {
     // Use the built-in NoOpInspector
     const inspector = NoOpInspector();
@@ -94,6 +100,7 @@ class ExamplePage extends StatelessWidget {
     _showSnackBar(context, 'Logged: ${event.title}');
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   void _demonstrateNetworkLogging(BuildContext context) {
     // Create a network request log
     final requestLog = NetworkRequestLog(
@@ -106,14 +113,18 @@ class ExamplePage extends StatelessWidget {
     _showSnackBar(context, 'Network log created: ${requestLog.title}');
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   void _demonstrateActionObserver(BuildContext context) {
     // Create an action log
     final actionLog = ActionLog(
+      id: 'action_123',
+      timestamp: DateTime.now(),
+      category: 'action',
+      tags: {'action'},
       eventId: 'action_123',
       actionId: 'button_tap',
       actionType: 'UserInteraction',
       status: ActionStatus.completed,
-      timestamp: DateTime.now(),
       sourceChain: ['ExamplePage', 'DemoButton'],
       triggerName: 'onTap',
       actionDefinition: {'type': 'demo'},
@@ -123,6 +134,7 @@ class ExamplePage extends StatelessWidget {
     _showSnackBar(context, 'Action logged: ${actionLog.actionType}');
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   void _demonstrateLogEvents(BuildContext context) {
     final event = CustomLogEvent(
       message: 'Demonstrating log event features',
@@ -143,6 +155,7 @@ class ExamplePage extends StatelessWidget {
     );
   }
 
+  /// Simple example demonstrating Digia Inspector Core usage
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -152,15 +165,19 @@ class ExamplePage extends StatelessWidget {
 
 /// Simple custom log event for demonstration
 class CustomLogEvent extends DigiaLogEvent {
-  final String message;
-  final String level;
-
+  /// Simple example demonstrating Digia Inspector Core usage
   CustomLogEvent({
     required this.message,
     required this.level,
-    String? category,
-    Set<String>? tags,
-  }) : super(category: category, tags: tags);
+    super.category,
+    super.tags,
+  });
+
+  /// Simple example demonstrating Digia Inspector Core usage
+  final String message;
+
+  /// Simple example demonstrating Digia Inspector Core usage
+  final String level;
 
   @override
   String get eventType => 'custom';

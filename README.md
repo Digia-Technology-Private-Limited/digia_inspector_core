@@ -17,9 +17,10 @@ Digia Inspector Core is the backbone of the Digia debugging ecosystem. It provid
 - **🔍 Abstract Logging Interfaces** - Flexible contracts that allow different logging implementations
 - **🌐 Network Monitoring Contracts** - Built-in HTTP interceptor interfaces for comprehensive request/response tracking
 - **⚡ Action Observation** - Observer patterns for monitoring action execution and performance
+- **🏛️ State Monitoring** - Observer patterns for tracking state changes across the Digia framework
 - **📊 Structured Event System** - Type-safe log events with categorization, tagging, and search capabilities
 - **🔄 JSON Serialization** - Complete serialization support for log persistence and transmission
-- **⏰ Timestamp Utilities** - Consistent time handling across all logging operations
+- **⏰ Timestamp Utilities** - Consistent timestamp formatting and management
 
 ### Key Features
 
@@ -71,10 +72,13 @@ class MyCustomInspector implements DigiaInspector {
   }
 
   @override
-  DigiaDioInterceptor? get dioInterceptor => MyDioInterceptor();
+  NetworkObserver? get dioInterceptor => MyNetworkObserver();
 
   @override
   ActionObserver? get actionObserver => MyActionObserver();
+
+  @override
+  StateObserver? get stateObserver => MyStateObserver();
 
   List<DigiaLogEvent> get logs => List.unmodifiable(_logs);
 }
@@ -82,21 +86,29 @@ class MyCustomInspector implements DigiaInspector {
 
 ### Network Monitoring
 
-Implement the `DigiaDioInterceptor` for HTTP monitoring:
+Implement the `NetworkObserver` for HTTP monitoring:
 
 ```dart
-class MyDioInterceptor implements DigiaDioInterceptor {
+class MyNetworkObserver implements NetworkObserver {
   final DigiaInspector inspector;
+  late final Interceptor _interceptor;
 
-  MyDioInterceptor(this.inspector);
+  MyNetworkObserver(this.inspector) {
+    _interceptor = InterceptorsWrapper(
+      onRequest: onRequest,
+      onResponse: onResponse,
+      onError: onError,
+    );
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final log = NetworkRequestLog(
-      url: options.uri.toString(),
+      url: options.uri,
       method: options.method,
       headers: options.headers,
       body: options.data,
+      requestId: options.extra['requestId'] ?? 'unknown',
     );
     inspector.log(log);
     handler.next(options);
@@ -109,6 +121,7 @@ class MyDioInterceptor implements DigiaDioInterceptor {
       headers: response.headers.map,
       body: response.data,
       requestUrl: response.requestOptions.uri.toString(),
+      requestId: response.requestOptions.extra['requestId'] ?? 'unknown',
     );
     inspector.log(log);
     handler.next(response);
@@ -120,10 +133,14 @@ class MyDioInterceptor implements DigiaDioInterceptor {
       error: err.message ?? 'Unknown error',
       requestUrl: err.requestOptions.uri.toString(),
       statusCode: err.response?.statusCode,
+      requestId: err.requestOptions.extra['requestId'] ?? 'unknown',
     );
     inspector.log(log);
     handler.next(err);
   }
+
+  @override
+  Interceptor get interceptor => _interceptor;
 }
 ```
 
@@ -138,18 +155,95 @@ class MyActionObserver implements ActionObserver {
   MyActionObserver(this.inspector);
 
   @override
-  void onActionStarted(ActionLog actionLog) {
-    inspector.log(actionLog);
+  void onActionPending(ActionLog event) {
+    inspector.log(event);
   }
 
   @override
-  void onActionCompleted(ActionLog actionLog) {
-    inspector.log(actionLog);
+  void onActionStart(ActionLog event) {
+    inspector.log(event);
   }
 
   @override
-  void onActionFailed(ActionLog actionLog) {
-    inspector.log(actionLog);
+  void onActionProgress(ActionLog event) {
+    inspector.log(event);
+  }
+
+  @override
+  void onActionComplete(ActionLog event) {
+    inspector.log(event);
+  }
+
+  @override
+  void onActionDisabled(ActionLog event) {
+    inspector.log(event);
+  }
+}
+```
+
+### State Monitoring
+
+Implement the `StateObserver` for tracking state changes:
+
+```dart
+class MyStateObserver implements StateObserver {
+  final DigiaInspector inspector;
+
+  MyStateObserver(this.inspector);
+
+  @override
+  void onCreate(
+    String stateId,
+    StateType stateType, {
+    String? namespace,
+    Map<String, Object?>? args,
+    Map<String, Object?>? initialState,
+    Map<String, Object?>? metadata,
+  }) {
+    // Log state creation
+    print('State created: $stateId ($stateType)');
+  }
+
+  @override
+  void onChange(
+    String stateId,
+    StateType stateType, {
+    String? namespace,
+    Map<String, Object?>? args,
+    Map<String, Object?>? changes,
+    Map<String, Object?>? previousState,
+    Map<String, Object?>? currentState,
+    Map<String, Object?>? metadata,
+  }) {
+    // Log state changes
+    print('State changed: $stateId - $changes');
+  }
+
+  @override
+  void onDispose(
+    String stateId,
+    StateType stateType, {
+    String? namespace,
+    Map<String, Object?>? args,
+    Map<String, Object?>? finalState,
+    Map<String, Object?>? metadata,
+  }) {
+    // Log state disposal
+    print('State disposed: $stateId ($stateType)');
+  }
+
+  @override
+  void onError(
+    String stateId,
+    StateType stateType,
+    Object error,
+    StackTrace stackTrace, {
+    String? namespace,
+    Map<String, Object?>? args,
+    Map<String, Object?>? metadata,
+  }) {
+    // Log state errors
+    print('State error in $stateId: $error');
   }
 }
 ```
@@ -243,8 +337,9 @@ static CustomUserActionEvent fromJson(Map<String, dynamic> json) {
 ### Core Contracts
 
 - **`DigiaInspector`** - Main interface for receiving and handling log events
-- **`DigiaDioInterceptor`** - Contract for HTTP request/response monitoring
+- **`NetworkObserver`** - Contract for HTTP request/response monitoring
 - **`ActionObserver`** - Interface for monitoring action execution
+- **`StateObserver`** - Interface for monitoring state changes across the Digia framework
 
 ### Event Models
 
@@ -253,6 +348,7 @@ static CustomUserActionEvent fromJson(Map<String, dynamic> json) {
 - **`NetworkResponseLog`** - HTTP response logging
 - **`NetworkErrorLog`** - HTTP error logging
 - **`ActionLog`** - Action execution logging with performance metrics
+- **`StateLog`** - State change logging
 
 ### Utilities
 
@@ -267,6 +363,7 @@ static CustomUserActionEvent fromJson(Map<String, dynamic> json) {
 | `NetworkResponseLog` | HTTP response details     | API monitoring, response analysis         |
 | `NetworkErrorLog`    | HTTP error information    | Error tracking, debugging failures        |
 | `ActionLog`          | Action execution tracking | Performance monitoring, user interactions |
+| `StateLog`           | State change tracking     | State debugging, flow analysis            |
 | Custom Events        | Your custom event types   | Application-specific logging needs        |
 
 ## 🧪 Testing
@@ -284,8 +381,9 @@ void main() {
 
     test('should handle log events gracefully', () {
       final event = NetworkRequestLog(
-        url: 'https://api.example.com',
+        url: Uri.parse('https://api.example.com'),
         method: 'GET',
+        requestId: 'test-request-123',
       );
 
       expect(() => inspector.log(event), returnsNormally);
@@ -296,7 +394,7 @@ void main() {
 
 ## 📄 License
 
-This project is licensed under the Business Source License 1.1 (BSL 1.1) - see the [LICENSE](LICENSE) file for details. The BSL 1.1 allows personal and commercial use with certain restrictions around competing platforms. On September 7, 2029, the license will automatically convert to Apache License 2.0.
+This project is licensed under the Business Source License 1.1 (BSL 1.1) - see the [LICENSE](LICENSE) file for details. The BSL 1.1 allows personal and commercial use with certain restrictions around competing platforms. On September 9, 2029, the license will automatically convert to Apache License 2.0.
 
 For commercial licensing inquiries or exceptions, please contact admin@digia.tech.
 

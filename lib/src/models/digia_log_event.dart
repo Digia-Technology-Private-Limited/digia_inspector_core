@@ -2,9 +2,28 @@ import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 
 /// Base class for all loggable events in the Digia ecosystem.
 ///
-/// This abstract class provides the foundation for different types of log events
-/// such as network requests, widget tree changes, errors, and custom application logs.
+/// This abstract class provides the foundation for different types of log
+/// events such as network requests, widget tree changes, errors, and
+/// custom application logs.
 abstract class DigiaLogEvent {
+  /// Creates a new log event.
+  ///
+  /// [id] should be unique across all log events. If not provided, a UUID will
+  /// be generated.
+  /// [timestamp] defaults to the current time if not provided.
+  /// [category] can be used to group related events
+  /// (e.g., "network", "ui", "auth").
+  /// [tags] provide additional classification
+  ///  (e.g., {"error", "critical", "auth"}).
+  DigiaLogEvent({
+    String? id,
+    DateTime? timestamp,
+    this.category,
+    Set<String>? tags,
+  })  : id = id ?? _generateId(),
+        timestamp = timestamp ?? TimestampHelper.now(),
+        tags = tags ?? <String>{};
+
   /// Unique identifier for this log event.
   final String id;
 
@@ -16,21 +35,6 @@ abstract class DigiaLogEvent {
 
   /// Optional tags for additional classification.
   final Set<String> tags;
-
-  /// Creates a new log event.
-  ///
-  /// [id] should be unique across all log events. If not provided, a UUID will be generated.
-  /// [timestamp] defaults to the current time if not provided.
-  /// [category] can be used to group related events (e.g., "network", "ui", "auth").
-  /// [tags] provide additional classification (e.g., {"error", "critical", "auth"}).
-  DigiaLogEvent({
-    String? id,
-    DateTime? timestamp,
-    this.category,
-    Set<String>? tags,
-  })  : id = id ?? _generateId(),
-        timestamp = timestamp ?? TimestampHelper.now(),
-        tags = tags ?? <String>{};
 
   /// The type of this log event (e.g., "network", "error", "custom").
   ///
@@ -103,15 +107,6 @@ abstract class DigiaLogEvent {
         'timestamp: ${TimestampHelper.format(timestamp)}, title: $title}';
   }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is DigiaLogEvent && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-
   /// Generates a unique ID for a log event.
   static String _generateId() {
     final now = DateTime.now();
@@ -124,24 +119,23 @@ abstract class DigiaLogEvent {
 /// A generic implementation of LogEvent for cases where we need to create
 /// log events from JSON without knowing the specific subclass.
 class _GenericLogEvent extends DigiaLogEvent {
-  final String _eventType;
-  final String _title;
-  final String _description;
-  final Map<String, dynamic> _metadata;
-
   _GenericLogEvent({
-    required String id,
-    required DateTime timestamp,
+    required String super.id,
+    required DateTime super.timestamp,
     required String title,
     required String description,
-    required String? category,
-    required Set<String> tags,
+    required super.category,
+    required Set<String> super.tags,
     required Map<String, dynamic> metadata,
   })  : _eventType = 'generic',
         _title = title,
         _description = description,
-        _metadata = metadata,
-        super(id: id, timestamp: timestamp, category: category, tags: tags);
+        _metadata = metadata;
+
+  final String _eventType;
+  final String _title;
+  final String _description;
+  final Map<String, dynamic> _metadata;
 
   @override
   String get eventType => _eventType;

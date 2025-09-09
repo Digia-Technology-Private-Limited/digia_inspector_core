@@ -1,10 +1,9 @@
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
-/// Action observability event data structure
+/// Action status enum
 ///
-/// Represents an action event in the action execution lifecycle.
-/// This class captures all necessary information for debugging and monitoring
-/// action execution, including timing, parameters, status, and hierarchy.
+/// Represents the current status of an action.
+/// This enum is used to track the progress and completion of an action.
 
 enum ActionStatus {
   /// Action is queued for execution
@@ -23,7 +22,51 @@ enum ActionStatus {
   disabled,
 }
 
+/// Action log event data structure
+///
+/// Represents an action event in the action execution lifecycle.
+/// This class captures all necessary information for debugging and monitoring
+/// action execution, including timing, parameters, status, and hierarchy.
 class ActionLog extends DigiaLogEvent {
+  /// Constructor for ActionLog
+  ///
+  /// [eventId] - Unique identifier for this action log
+  /// [actionId] - ID of the action being executed
+  /// [actionType] - Type/class name of the action
+  /// [status] - Current status of the action
+  /// [executionTime] - How long the action took to execute
+  /// (null if still running)
+  /// [parentEventId] - ID of the parent log (for nested actions)
+  /// [sourceChain] - Widget hierarchy and trigger information
+  /// [triggerName] - Name of the trigger that initiated this action
+  /// [actionDefinition] - Full action definition/configuration
+  /// [resolvedParameters] - Resolved parameters used for execution
+  /// [progressData] - Progress information for long-running actions
+  /// [error] - Error object if action failed
+  /// [errorMessage] - Human-readable error message
+  /// [stackTrace] - Stack trace if action failed
+  /// [metadata] - Additional metadata for debugging
+  ActionLog({
+    required super.id,
+    required super.timestamp,
+    required super.category,
+    required super.tags,
+    required this.eventId,
+    required this.actionId,
+    required this.actionType,
+    required this.status,
+    required this.sourceChain,
+    required this.triggerName,
+    required this.actionDefinition,
+    required this.resolvedParameters,
+    this.executionTime,
+    this.parentEventId,
+    this.progressData,
+    this.error,
+    this.errorMessage,
+    this.stackTrace,
+  });
+
   /// Unique identifier for this action log
   final String eventId;
 
@@ -36,9 +79,6 @@ class ActionLog extends DigiaLogEvent {
   /// Current status of the action
   final ActionStatus status;
 
-  /// When this log was created
-  final DateTime timestamp;
-
   /// How long the action took to execute (null if still running)
   final Duration? executionTime;
 
@@ -48,7 +88,8 @@ class ActionLog extends DigiaLogEvent {
   /// Widget hierarchy and trigger information
   final List<String> sourceChain;
 
-  /// Name of the trigger that initiated this action (e.g., 'onClick', 'onPageLoad')
+  /// Name of the trigger that initiated this action
+  /// (e.g., 'onClick', 'onPageLoad')
   final String triggerName;
 
   /// Full action definition/configuration
@@ -69,35 +110,12 @@ class ActionLog extends DigiaLogEvent {
   /// Stack trace if action failed
   final StackTrace? stackTrace;
 
-  /// Additional metadata for debugging
-  final Map<String, dynamic> metadata;
-
-  ActionLog({
-    required this.eventId,
-    required this.actionId,
-    required this.actionType,
-    required this.status,
-    required this.timestamp,
-    this.executionTime,
-    this.parentEventId,
-    required this.sourceChain,
-    required this.triggerName,
-    required this.actionDefinition,
-    required this.resolvedParameters,
-    this.progressData,
-    this.error,
-    this.errorMessage,
-    this.stackTrace,
-    this.metadata = const {},
-  });
-
   /// Create a copy of this log with updated fields
   ActionLog copyWith({
     String? eventId,
     String? actionId,
     String? actionType,
     ActionStatus? status,
-    DateTime? timestamp,
     Duration? executionTime,
     String? parentEventId,
     List<String>? sourceChain,
@@ -108,14 +126,20 @@ class ActionLog extends DigiaLogEvent {
     Object? error,
     String? errorMessage,
     StackTrace? stackTrace,
-    Map<String, dynamic>? metadata,
+    String? id,
+    DateTime? timestamp,
+    String? category,
+    Set<String>? tags,
   }) {
     return ActionLog(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      category: category ?? this.category,
+      tags: tags ?? this.tags,
       eventId: eventId ?? this.eventId,
       actionId: actionId ?? this.actionId,
       actionType: actionType ?? this.actionType,
       status: status ?? this.status,
-      timestamp: timestamp ?? this.timestamp,
       executionTime: executionTime ?? this.executionTime,
       parentEventId: parentEventId ?? this.parentEventId,
       sourceChain: sourceChain ?? this.sourceChain,
@@ -126,7 +150,6 @@ class ActionLog extends DigiaLogEvent {
       error: error ?? this.error,
       errorMessage: errorMessage ?? this.errorMessage,
       stackTrace: stackTrace ?? this.stackTrace,
-      metadata: metadata ?? this.metadata,
     );
   }
 
@@ -160,15 +183,6 @@ class ActionLog extends DigiaLogEvent {
         'sourceChain: $formattedSourceChain'
         ')';
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ActionLog && other.eventId == eventId;
-  }
-
-  @override
-  int get hashCode => eventId.hashCode;
 
   @override
   String get description => 'ActionLog';
