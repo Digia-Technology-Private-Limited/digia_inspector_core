@@ -19,7 +19,7 @@ abstract class DigiaInspector {
   ///
   /// If the inspector provides network monitoring capabilities, it should
   /// return a DigiaDioInterceptor instance. Otherwise, returns null.
-  NetworkObserver? get dioInterceptor => null;
+  NetworkObserver? get networkObserver => null;
 
   /// Returns the action observer for action execution monitoring.
   ///
@@ -48,7 +48,7 @@ class NoOpInspector implements DigiaInspector {
   }
 
   @override
-  NetworkObserver? get dioInterceptor => null;
+  NetworkObserver? get networkObserver => null;
 
   @override
   ActionObserver? get actionObserver => null;

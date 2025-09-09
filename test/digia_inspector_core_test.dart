@@ -15,7 +15,7 @@ void main() {
           'metadata': {'test': 'test'},
         }),
       );
-    expect(inspector.dioInterceptor, isNull);
+    expect(inspector.networkObserver, isNull);
     expect(inspector.actionObserver, isNull);
   });
 }
