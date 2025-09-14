@@ -6,76 +6,62 @@
 abstract class StateObserver {
   /// Called whenever a new state scope is created.
   ///
-  /// [stateId] - Unique identifier for the state scope
+  /// [id] - Unique identifier for the state scope
   /// [stateType] - Type of state (app, page, component, stateContainer)
   /// [namespace] - Optional namespace for the state scope
-  /// [args] - Arguments/parameters passed when the scope was created
-  /// [initialState] - Initial state values
-  /// [metadata] - Additional context information
-  void onCreate(
-    String stateId,
-    StateType stateType, {
+  /// [argData] - Arguments/parameters passed when the scope was created
+  /// [stateData] - Initial state values
+  void onCreate({
+    required String id,
+    required StateType stateType,
     String? namespace,
-    Map<String, Object?>? args,
-    Map<String, Object?>? initialState,
-    Map<String, Object?>? metadata,
+    Map<String, Object?>? argData,
+    Map<String, Object?>? stateData,
   }) {}
 
   /// Called whenever state values change within a scope.
   ///
-  /// [stateId] - Unique identifier for the state scope
+  /// [id] - Unique identifier for the state scope
   /// [stateType] - Type of state that changed
   /// [namespace] - Optional namespace for the state scope
-  /// [args] - Arguments/parameters associated with this scope (optional; resend if changed)
-  /// [changes] - Map of key-value pairs that changed
-  /// [previousState] - Previous state values
-  /// [currentState] - Current state values after changes
-  /// [metadata] - Additional context information
-  void onChange(
-    String stateId,
-    StateType stateType, {
+  /// [argData] - Arguments/parameters associated with this scope (optional; resend if changed)
+  /// [stateData] - Map of key-value pairs that changed
+  void onChange({
+    required String id,
+    required StateType stateType,
     String? namespace,
-    Map<String, Object?>? args,
-    Map<String, Object?>? changes,
-    Map<String, Object?>? previousState,
-    Map<String, Object?>? currentState,
-    Map<String, Object?>? metadata,
+    Map<String, Object?>? argData,
+    Map<String, Object?>? stateData,
   }) {}
 
   /// Called when a state scope is disposed or closed.
   ///
-  /// [stateId] - Unique identifier for the state scope
+  /// [id] - Unique identifier for the state scope
   /// [stateType] - Type of state being disposed
   /// [namespace] - Optional namespace for the state scope
-  /// [args] - Arguments/parameters associated with this scope
-  /// [finalState] - Final state values before disposal
-  /// [metadata] - Additional context information
-  void onDispose(
-    String stateId,
-    StateType stateType, {
+  /// [argData] - Arguments/parameters associated with this scope
+  /// [stateData] - Final state values before disposal
+  void onDispose({
+    required String id,
+    required StateType stateType,
     String? namespace,
-    Map<String, Object?>? args,
-    Map<String, Object?>? finalState,
-    Map<String, Object?>? metadata,
+    Map<String, Object?>? argData,
+    Map<String, Object?>? stateData,
   }) {}
 
   /// Called when an error occurs during state operations.
   ///
-  /// [stateId] - Unique identifier for the state scope
+  /// [id] - Unique identifier for the state scope
   /// [stateType] - Type of state where error occurred
   /// [error] - The error object
   /// [stackTrace] - Stack trace of the error
   /// [namespace] - Optional namespace for the state scope
-  /// [args] - Arguments/parameters associated with this scope
-  /// [metadata] - Additional context information
-  void onError(
-    String stateId,
-    StateType stateType,
-    Object error,
-    StackTrace stackTrace, {
+  void onError({
+    required String id,
+    required StateType stateType,
+    required Object error,
+    required StackTrace stackTrace,
     String? namespace,
-    Map<String, Object?>? args,
-    Map<String, Object?>? metadata,
   }) {}
 }
 

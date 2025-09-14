@@ -2,7 +2,7 @@ import 'package:digia_inspector_core/src/models/action_log.dart';
 
 /// Observer interface for action execution events
 ///
-/// Implementations of this interface can register to receive notifications
+/// Implementations of this interface can be registered to receive notifications
 /// about action lifecycle events including start, progress, completion, and
 /// disabling. This enables debugging, monitoring, and logging of
 /// action execution.

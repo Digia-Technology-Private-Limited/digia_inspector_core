@@ -7,7 +7,10 @@ import 'package:dio/dio.dart';
 /// separation of concerns.
 abstract class NetworkObserver {
   /// Called when a network request is about to be sent.
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler);
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  );
 
   /// Called when a network response is received successfully.
   void onResponse(
@@ -16,7 +19,10 @@ abstract class NetworkObserver {
   );
 
   /// Called when a network request fails with an error.
-  void onError(DioException error, ErrorInterceptorHandler handler);
+  void onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  );
 
   /// Returns the underlying interceptor instance.
   ///

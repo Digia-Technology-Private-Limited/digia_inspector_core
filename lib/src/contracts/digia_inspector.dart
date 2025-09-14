@@ -18,7 +18,7 @@ abstract class DigiaInspector {
   /// Returns the Dio interceptor for automatic network monitoring.
   ///
   /// If the inspector provides network monitoring capabilities, it should
-  /// return a DigiaDioInterceptor instance. Otherwise, returns null.
+  /// return a NetworkObserver instance. Otherwise, returns null.
   NetworkObserver? get networkObserver => null;
 
   /// Returns the action observer for action execution monitoring.
@@ -30,14 +30,11 @@ abstract class DigiaInspector {
   /// Returns the state observer for state monitoring.
   ///
   /// If the inspector provides state observability capabilities, it should
-  /// return a DigiaStateObserver instance. Otherwise, returns null.
+  /// return a StateObserver instance. Otherwise, returns null.
   StateObserver? get stateObserver => null;
 }
 
 /// A no-op inspector implementation that discards all log events.
-///
-/// This is useful as a default inspector or for testing scenarios where
-/// you don't want actual logging to occur.
 class NoOpInspector implements DigiaInspector {
   /// A no-op inspector implementation that discards all log events.
   const NoOpInspector();
