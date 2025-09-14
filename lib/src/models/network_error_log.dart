@@ -1,5 +1,5 @@
-import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 
 /// Represents a network error in the logging system.
 ///
@@ -7,6 +7,56 @@ import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 /// DNS failures, and other network-level issues that prevent successful
 /// HTTP request completion.
 class NetworkErrorLog extends DigiaLogEvent {
+  /// Constructor for NetworkErrorLog
+  ///
+  /// [error] - The error that occurred.
+  /// [requestId] - The associated request log ID (if available).
+  /// [stackTrace] - Stack trace of the error.
+  /// [errorContext] - Additional error context.
+  /// [apiName] - Name of the API that failed (from associated request).
+  /// [apiId] - API ID for correlation (from associated request).
+  /// [failedUrl] - URL that failed (if available).
+  /// [failedMethod] - HTTP method that failed (if available).
+  /// [category] - Category of the log event.
+  /// [tags] - Tags for the log event.
+  NetworkErrorLog({
+    required this.error,
+    super.id,
+    super.timestamp,
+    this.requestId,
+    this.stackTrace,
+    Map<String, dynamic>? errorContext,
+    this.apiName,
+    this.apiId,
+    this.failedUrl,
+    this.failedMethod,
+    super.category = 'network',
+    super.tags,
+  }) : errorContext = errorContext ?? {};
+
+  /// Creates a NetworkErrorLog from JSON.
+  NetworkErrorLog.fromJson(Map<String, dynamic> json)
+      : requestId = json['requestId'] as String?,
+        error = json['error'] as String? ?? 'Unknown error',
+        stackTrace = json['stackTrace'] != null
+            ? StackTrace.fromString(json['stackTrace'] as String)
+            : null,
+        errorContext = (json['errorContext'] as Map<String, dynamic>?) ?? {},
+        apiName = json['apiName'] as String?,
+        apiId = json['apiId'] as String?,
+        failedUrl = json['failedUrl'] as String?,
+        failedMethod = json['failedMethod'] as String?,
+        super(
+          id: json['id'] as String,
+          timestamp: DateTime.tryParse(json['timestamp'] as String) ??
+              TimestampHelper.now(),
+          category: json['category'] as String?,
+          tags: (json['tags'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toSet() ??
+              <String>{},
+        );
+
   /// The associated request log ID (if available).
   final String? requestId;
 
@@ -31,23 +81,6 @@ class NetworkErrorLog extends DigiaLogEvent {
   /// HTTP method that failed (if available).
   final String? failedMethod;
 
-  /// Creates a new network error log entry.
-  NetworkErrorLog({
-    super.id,
-    DateTime? timestamp,
-    this.requestId,
-    required this.error,
-    this.stackTrace,
-    Map<String, dynamic>? errorContext,
-    this.apiName,
-    this.apiId,
-    this.failedUrl,
-    this.failedMethod,
-    super.category = 'network',
-    super.tags,
-  })  : errorContext = errorContext ?? {},
-        super(timestamp: timestamp);
-
   @override
   String get eventType => 'network_error';
 
@@ -58,8 +91,8 @@ class NetworkErrorLog extends DigiaLogEvent {
 
   @override
   String get description => apiName != null
-      ? 'Network error occurred while calling $apiName: ${error.toString()}'
-      : 'Network error: ${error.toString()}';
+      ? 'Network error occurred while calling $apiName: $error'
+      : 'Network error: $error';
 
   @override
   Map<String, dynamic> get metadata => {
@@ -68,10 +101,10 @@ class NetworkErrorLog extends DigiaLogEvent {
         'errorType': error.runtimeType.toString(),
         'stackTrace': stackTrace?.toString(),
         'errorContext': errorContext,
-        if (apiName != null) 'apiName': apiName!,
-        if (apiId != null) 'apiId': apiId!,
-        if (failedUrl != null) 'failedUrl': failedUrl!,
-        if (failedMethod != null) 'failedMethod': failedMethod!,
+        if (apiName != null) 'apiName': apiName,
+        if (apiId != null) 'apiId': apiId,
+        if (failedUrl != null) 'failedUrl': failedUrl,
+        if (failedMethod != null) 'failedMethod': failedMethod,
       };
 
   /// Returns the display name for this error (API name or generic).
@@ -108,29 +141,6 @@ class NetworkErrorLog extends DigiaLogEvent {
     );
   }
 
-  /// Creates a NetworkErrorLog from JSON.
-  static NetworkErrorLog fromJson(Map<String, dynamic> json) {
-    return NetworkErrorLog(
-      id: json['id'] as String,
-      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
-          TimestampHelper.now(),
-      requestId: json['requestId'] as String?,
-      error: json['error'] as String? ?? 'Unknown error',
-      stackTrace: json['stackTrace'] != null
-          ? StackTrace.fromString(json['stackTrace'] as String)
-          : null,
-      errorContext: (json['errorContext'] as Map<String, dynamic>?) ?? {},
-      apiName: json['apiName'] as String?,
-      apiId: json['apiId'] as String?,
-      failedUrl: json['failedUrl'] as String?,
-      failedMethod: json['failedMethod'] as String?,
-      category: json['category'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-              <String>{},
-    );
-  }
-
   @override
   bool matches(String query) {
     final lowercaseQuery = query.toLowerCase();
@@ -144,5 +154,5 @@ class NetworkErrorLog extends DigiaLogEvent {
   }
 
   @override
-  String toString() => 'NetworkErrorLog(${displayName}: ${error.runtimeType})';
+  String toString() => 'NetworkErrorLog($displayName: ${error.runtimeType})';
 }

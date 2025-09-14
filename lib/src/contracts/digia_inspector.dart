@@ -1,5 +1,6 @@
 import 'package:digia_inspector_core/src/contracts/action_observer.dart';
-import 'package:digia_inspector_core/src/contracts/digia_dio_interceptor.dart';
+import 'package:digia_inspector_core/src/contracts/network_observer.dart';
+import 'package:digia_inspector_core/src/contracts/state_observer.dart';
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
 
 /// Abstract interface for receiving and handling log events.
@@ -16,15 +17,21 @@ abstract class DigiaInspector {
 
   /// Returns the Dio interceptor for automatic network monitoring.
   ///
-  /// If the inspector provides network monitoring capabilities, it should return
-  /// a DigiaDioInterceptor instance. Otherwise, returns null.
-  DigiaDioInterceptor? get dioInterceptor => null;
+  /// If the inspector provides network monitoring capabilities, it should
+  /// return a DigiaDioInterceptor instance. Otherwise, returns null.
+  NetworkObserver? get networkObserver => null;
 
   /// Returns the action observer for action execution monitoring.
   ///
-  /// If the inspector provides action observability capabilities, it should return
-  /// an ActionObserver instance. Otherwise, returns null.
+  /// If the inspector provides action observability capabilities, it should
+  /// return an ActionObserver instance. Otherwise, returns null.
   ActionObserver? get actionObserver => null;
+
+  /// Returns the state observer for state monitoring.
+  ///
+  /// If the inspector provides state observability capabilities, it should
+  /// return a DigiaStateObserver instance. Otherwise, returns null.
+  StateObserver? get stateObserver => null;
 }
 
 /// A no-op inspector implementation that discards all log events.
@@ -32,6 +39,7 @@ abstract class DigiaInspector {
 /// This is useful as a default inspector or for testing scenarios where
 /// you don't want actual logging to occur.
 class NoOpInspector implements DigiaInspector {
+  /// A no-op inspector implementation that discards all log events.
   const NoOpInspector();
 
   @override
@@ -40,8 +48,11 @@ class NoOpInspector implements DigiaInspector {
   }
 
   @override
-  DigiaDioInterceptor? get dioInterceptor => null;
+  NetworkObserver? get networkObserver => null;
 
   @override
   ActionObserver? get actionObserver => null;
+
+  @override
+  StateObserver? get stateObserver => null;
 }

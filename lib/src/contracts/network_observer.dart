@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 /// This contract defines the interface for network interceptors without
 /// depending on the full Digia Inspector package, allowing for cleaner
 /// separation of concerns.
-abstract class DigiaDioInterceptor {
+abstract class NetworkObserver {
   /// Called when a network request is about to be sent.
   void onRequest(RequestOptions options, RequestInterceptorHandler handler);
 

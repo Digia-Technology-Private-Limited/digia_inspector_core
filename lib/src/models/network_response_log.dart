@@ -1,11 +1,59 @@
-import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 
 /// Represents an HTTP response in the logging system.
 ///
 /// This class captures response information including status codes, headers,
 /// response body, and timing data for debugging network interactions.
 class NetworkResponseLog extends DigiaLogEvent {
+  /// Constructor for NetworkResponseLog
+  ///
+  /// [requestId] - The associated request log ID for correlation.
+  /// [statusCode] - The HTTP status code.
+  /// [headers] - Response headers.
+  /// [body] - Response body.
+  /// [responseSize] - Size of the response body in bytes.
+  /// [duration] - Time taken for the request/response cycle.
+  /// [apiName] - Name of the API that was called (from associated request).
+  /// [apiId] - API ID for correlation (from associated request).
+  NetworkResponseLog({
+    required this.requestId,
+    required this.statusCode,
+    super.id,
+    super.timestamp,
+    Map<String, dynamic>? headers,
+    this.body,
+    this.responseSize,
+    this.duration,
+    this.apiName,
+    this.apiId,
+    super.category = 'network',
+    super.tags,
+  }) : headers = headers ?? {};
+
+  /// Creates a NetworkResponseLog from JSON.
+  NetworkResponseLog.fromJson(Map<String, dynamic> json)
+      : requestId = json['requestId'] as String,
+        statusCode = json['statusCode'] as int,
+        headers = (json['headers'] as Map<String, dynamic>?) ?? {},
+        body = json['body'],
+        responseSize = json['responseSize'] as int?,
+        duration = json['duration'] != null
+            ? Duration(milliseconds: json['duration'] as int)
+            : null,
+        apiName = json['apiName'] as String?,
+        apiId = json['apiId'] as String?,
+        super(
+          id: json['id'] as String,
+          timestamp: DateTime.tryParse(json['timestamp'] as String) ??
+              TimestampHelper.now(),
+          category: json['category'] as String?,
+          tags: (json['tags'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toSet() ??
+              <String>{},
+        );
+
   /// The associated request log ID for correlation.
   final String requestId;
 
@@ -30,23 +78,6 @@ class NetworkResponseLog extends DigiaLogEvent {
   /// API ID for correlation (from associated request).
   final String? apiId;
 
-  /// Creates a new network response log entry.
-  NetworkResponseLog({
-    super.id,
-    DateTime? timestamp,
-    required this.requestId,
-    required this.statusCode,
-    Map<String, dynamic>? headers,
-    this.body,
-    this.responseSize,
-    this.duration,
-    this.apiName,
-    this.apiId,
-    super.category = 'network',
-    super.tags,
-  })  : headers = headers ?? {},
-        super(timestamp: timestamp);
-
   @override
   String get eventType => 'network_response';
 
@@ -69,8 +100,8 @@ class NetworkResponseLog extends DigiaLogEvent {
         'body': body,
         'responseSize': responseSize,
         'duration': duration?.inMilliseconds,
-        if (apiName != null) 'apiName': apiName!,
-        if (apiId != null) 'apiId': apiId!,
+        if (apiName != null) 'apiName': apiName,
+        if (apiId != null) 'apiId': apiId,
       };
 
   /// Returns true if this response indicates success (2xx status code).
@@ -116,29 +147,6 @@ class NetworkResponseLog extends DigiaLogEvent {
     );
   }
 
-  /// Creates a NetworkResponseLog from JSON.
-  static NetworkResponseLog fromJson(Map<String, dynamic> json) {
-    return NetworkResponseLog(
-      id: json['id'] as String,
-      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
-          TimestampHelper.now(),
-      requestId: json['requestId'] as String,
-      statusCode: json['statusCode'] as int,
-      headers: (json['headers'] as Map<String, dynamic>?) ?? {},
-      body: json['body'],
-      responseSize: json['responseSize'] as int?,
-      duration: json['duration'] != null
-          ? Duration(milliseconds: json['duration'] as int)
-          : null,
-      apiName: json['apiName'] as String?,
-      apiId: json['apiId'] as String?,
-      category: json['category'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-              <String>{},
-    );
-  }
-
   @override
   bool matches(String query) {
     final lowercaseQuery = query.toLowerCase();
@@ -151,5 +159,5 @@ class NetworkResponseLog extends DigiaLogEvent {
   }
 
   @override
-  String toString() => 'NetworkResponseLog($statusCode ${displayName})';
+  String toString() => 'NetworkResponseLog($statusCode $displayName)';
 }

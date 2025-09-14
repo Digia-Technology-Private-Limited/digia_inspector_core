@@ -25,7 +25,7 @@ class TimestampHelper {
     return timestamp.toUtc().toIso8601String();
   }
 
-  /// Returns the elapsed time between two timestamps as a human-readable string.
+  /// Returns the elapsed time between two timestamps as a human-readable string
   ///
   /// Example: "1.234s", "123ms"
   static String formatDuration(DateTime start, DateTime end) {
@@ -50,11 +50,23 @@ class TimestampHelper {
     if (difference.inSeconds < 60) {
       return 'just now';
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+      return '${difference.inMinutes} minute'
+          '${difference.inMinutes == 1 ? '' : 's'} ago';
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+      return '${difference.inHours} hour'
+          '${difference.inHours == 1 ? '' : 's'} ago';
     } else {
-      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+      return '${difference.inDays} day'
+          '${difference.inDays == 1 ? '' : 's'} ago';
     }
+  }
+
+  /// Generates a unique ID based on current timestamp and random component.
+  ///
+  /// Example: "1705320625123_abc123"
+  static String generateId() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = (timestamp % 100000).toString().padLeft(5, '0');
+    return '${timestamp}_$random';
   }
 }

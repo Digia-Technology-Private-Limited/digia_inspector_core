@@ -1,11 +1,63 @@
-import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
+import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
 
 /// Represents an HTTP request in the logging system.
 ///
-/// This class captures all the essential information about an outgoing HTTP request
-/// including the URL, method, headers, body, and API metadata for debugging purposes.
+/// This class captures all the essential information about an outgoing
+/// HTTP request including the URL, method, headers, body, and API metadata
+/// for debugging purposes.
 class NetworkRequestLog extends DigiaLogEvent {
+  /// Constructor for NetworkRequestLog
+  ///
+  /// [method] - The HTTP method (GET, POST, PUT, DELETE, etc.).
+  /// [url] - The request URL.
+  /// [headers] - Request headers.
+  /// [body] - Request body (if any).
+  /// [queryParameters] - Query parameters included in the URL.
+  /// [requestSize] - Size of the request body in bytes.
+  /// [requestId] - Unique identifier for correlating with responses.
+  /// [apiName] - Name of the API being called (from APIModel.name).
+  /// [apiId] - API ID for correlation (from APIModel.id).
+  NetworkRequestLog({
+    required this.method,
+    required this.url,
+    required this.requestId,
+    super.id,
+    super.timestamp,
+    Map<String, dynamic>? headers,
+    this.body,
+    Map<String, dynamic>? queryParameters,
+    this.requestSize,
+    this.apiName,
+    this.apiId,
+    super.category = 'network',
+    super.tags,
+  })  : headers = headers ?? {},
+        queryParameters = queryParameters ?? {};
+
+  /// Creates a NetworkRequestLog from JSON.
+  NetworkRequestLog.fromJson(Map<String, dynamic> json)
+      : method = json['method'] as String,
+        url = Uri.parse(json['url'] as String),
+        headers = (json['headers'] as Map<String, dynamic>?) ?? {},
+        body = json['body'],
+        queryParameters =
+            (json['queryParameters'] as Map<String, dynamic>?) ?? {},
+        requestSize = json['requestSize'] as int?,
+        requestId = json['requestId'] as String,
+        apiName = json['apiName'] as String?,
+        apiId = json['apiId'] as String?,
+        super(
+          id: json['id'] as String,
+          timestamp: DateTime.tryParse(json['timestamp'] as String) ??
+              TimestampHelper.now(),
+          category: json['category'] as String?,
+          tags: (json['tags'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toSet() ??
+              <String>{},
+        );
+
   /// The HTTP method (GET, POST, PUT, DELETE, etc.).
   final String method;
 
@@ -33,25 +85,6 @@ class NetworkRequestLog extends DigiaLogEvent {
   /// API ID for correlation (from APIModel.id).
   final String? apiId;
 
-  /// Creates a new network request log entry.
-  NetworkRequestLog({
-    super.id,
-    DateTime? timestamp,
-    required this.method,
-    required this.url,
-    Map<String, dynamic>? headers,
-    this.body,
-    Map<String, dynamic>? queryParameters,
-    this.requestSize,
-    required this.requestId,
-    this.apiName,
-    this.apiId,
-    super.category = 'network',
-    super.tags,
-  })  : headers = headers ?? {},
-        queryParameters = queryParameters ?? {},
-        super(timestamp: timestamp);
-
   @override
   String get eventType => 'network_request';
 
@@ -61,8 +94,8 @@ class NetworkRequestLog extends DigiaLogEvent {
 
   @override
   String get description => apiName != null
-      ? 'HTTP $method request to $apiName (${url.toString()})'
-      : 'HTTP $method request to ${url.toString()}';
+      ? 'HTTP $method request to $apiName ($url)'
+      : 'HTTP $method request to $url';
 
   @override
   Map<String, dynamic> get metadata => {
@@ -73,8 +106,8 @@ class NetworkRequestLog extends DigiaLogEvent {
         'queryParameters': queryParameters,
         'requestSize': requestSize,
         'requestId': requestId,
-        if (apiName != null) 'apiName': apiName!,
-        if (apiId != null) 'apiId': apiId!,
+        if (apiName != null) 'apiName': apiName,
+        if (apiId != null) 'apiId': apiId,
       };
 
   /// Returns the display name for this request (API name or URL path).
@@ -113,28 +146,6 @@ class NetworkRequestLog extends DigiaLogEvent {
     );
   }
 
-  /// Creates a NetworkRequestLog from JSON.
-  static NetworkRequestLog fromJson(Map<String, dynamic> json) {
-    return NetworkRequestLog(
-      id: json['id'] as String,
-      timestamp: DateTime.tryParse(json['timestamp'] as String) ??
-          TimestampHelper.now(),
-      method: json['method'] as String,
-      url: Uri.parse(json['url'] as String),
-      headers: (json['headers'] as Map<String, dynamic>?) ?? {},
-      body: json['body'],
-      queryParameters: (json['queryParameters'] as Map<String, dynamic>?) ?? {},
-      requestSize: json['requestSize'] as int?,
-      requestId: json['requestId'] as String,
-      apiName: json['apiName'] as String?,
-      apiId: json['apiId'] as String?,
-      category: json['category'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ??
-              <String>{},
-    );
-  }
-
   @override
   bool matches(String query) {
     final lowercaseQuery = query.toLowerCase();
@@ -146,5 +157,5 @@ class NetworkRequestLog extends DigiaLogEvent {
   }
 
   @override
-  String toString() => 'NetworkRequestLog($method ${displayName})';
+  String toString() => 'NetworkRequestLog($method $displayName)';
 }
