@@ -16,4 +16,5 @@ export 'src/models/network_request_log.dart';
 export 'src/models/network_response_log.dart';
 export 'src/models/observability_context.dart';
 export 'src/models/state_log.dart';
+export 'src/utils/id_helper.dart';
 export 'src/utils/timestamp_helper.dart';

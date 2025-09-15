@@ -7,32 +7,22 @@ class ObservabilityContext {
   /// Constructor for ObservabilityContext
   ///
   /// [widgetHierarchy] - Widget hierarchy from root to current widget
-  /// [currentPageId] - ID of the current page
-  /// [currentComponentId] - ID of the current component
-  /// [triggerWidgetId] - ID of the widget that triggered the action
+  /// [currentEntityId] - ID of the current entity (page or component)
   /// [triggerType] - Type of trigger (onClick, onPageLoad, etc.)
   const ObservabilityContext({
     required this.widgetHierarchy,
-    required this.triggerType,
-    this.currentPageId,
-    this.currentComponentId,
-    this.triggerWidgetId,
+    this.triggerType,
+    this.currentEntityId,
   });
 
   /// Widget hierarchy from root to current widget
   final List<String> widgetHierarchy;
 
-  /// ID of the current page
-  final String? currentPageId;
-
-  /// ID of the current component
-  final String? currentComponentId;
-
-  /// ID of the widget that triggered the action
-  final String? triggerWidgetId;
+  /// ID of the current entity (page or component)
+  final String? currentEntityId;
 
   /// Type of trigger (onClick, onPageLoad, etc.)
-  final String triggerType;
+  final String? triggerType;
 
   /// Get the complete source chain for display
   ///
@@ -40,9 +30,9 @@ class ObservabilityContext {
   List<String> get sourceChain {
     final chain = <String>[];
 
-    // Add page context if available
-    if (currentPageId != null) {
-      chain.add(currentPageId!);
+    // Add entity context (page or component) if available
+    if (currentEntityId != null) {
+      chain.add(currentEntityId!);
     }
 
     // Add widget hierarchy
@@ -59,16 +49,12 @@ class ObservabilityContext {
   /// Create a copy with updated fields
   ObservabilityContext copyWith({
     List<String>? widgetHierarchy,
-    String? currentPageId,
-    String? currentComponentId,
-    String? triggerWidgetId,
+    String? currentEntityId,
     String? triggerType,
   }) {
     return ObservabilityContext(
       widgetHierarchy: widgetHierarchy ?? this.widgetHierarchy,
-      currentPageId: currentPageId ?? this.currentPageId,
-      currentComponentId: currentComponentId ?? this.currentComponentId,
-      triggerWidgetId: triggerWidgetId ?? this.triggerWidgetId,
+      currentEntityId: currentEntityId ?? this.currentEntityId,
       triggerType: triggerType ?? this.triggerType,
     );
   }
@@ -82,37 +68,18 @@ class ObservabilityContext {
   }
 
   /// Create a child context for a new component
-  /// This preserves the page context and existing hierarchy while setting the
-  /// component ID
-  ObservabilityContext forComponent({
-    required String componentId,
-    List<String>? additionalHierarchy,
-  }) {
-    final newHierarchy = additionalHierarchy != null
-        ? [...widgetHierarchy, ...additionalHierarchy]
-        : [...widgetHierarchy, componentId];
-
+  /// This preserves the entity context and adds the component to the hierarchy
+  ObservabilityContext forComponent({required String componentId}) {
     return copyWith(
-      widgetHierarchy: newHierarchy,
-      currentComponentId: componentId,
+      widgetHierarchy: [...widgetHierarchy, componentId],
       triggerType: 'onComponentLoad',
     );
   }
 
   /// Create a context for triggering an action
   /// This sets the trigger information while preserving the hierarchy
-  ObservabilityContext forTrigger({
-    required String triggerType,
-    String? triggerWidgetId,
-    List<String>? additionalHierarchy,
-  }) {
-    final newHierarchy = additionalHierarchy != null
-        ? [...widgetHierarchy, ...additionalHierarchy]
-        : widgetHierarchy;
-
+  ObservabilityContext forTrigger({required String triggerType}) {
     return copyWith(
-      widgetHierarchy: newHierarchy,
-      triggerWidgetId: triggerWidgetId,
       triggerType: triggerType,
     );
   }

@@ -30,13 +30,12 @@ enum ActionStatus {
 class ActionLog extends DigiaLogEvent {
   /// Constructor for ActionLog
   ///
-  /// [eventId] - Unique identifier for this action log
-  /// [actionId] - ID of the action being executed
+  /// [id] - Unique identifier for this action log
   /// [actionType] - Type/class name of the action
   /// [status] - Current status of the action
   /// [executionTime] - How long the action took to execute
   /// (null if still running)
-  /// [parentEventId] - ID of the parent log (for nested actions)
+  /// [parentActionId] - ID of the parent log (for nested actions)
   /// [sourceChain] - Widget hierarchy and trigger information
   /// [triggerName] - Name of the trigger that initiated this action
   /// [actionDefinition] - Full action definition/configuration
@@ -45,33 +44,23 @@ class ActionLog extends DigiaLogEvent {
   /// [error] - Error object if action failed
   /// [errorMessage] - Human-readable error message
   /// [stackTrace] - Stack trace if action failed
-  /// [metadata] - Additional metadata for debugging
   ActionLog({
     required super.id,
     required super.timestamp,
     required super.category,
-    required super.tags,
-    required this.eventId,
-    required this.actionId,
     required this.actionType,
     required this.status,
-    required this.sourceChain,
-    required this.triggerName,
+    this.sourceChain,
+    this.triggerName,
     required this.actionDefinition,
     required this.resolvedParameters,
     this.executionTime,
-    this.parentEventId,
+    this.parentActionId,
     this.progressData,
     this.error,
     this.errorMessage,
     this.stackTrace,
   });
-
-  /// Unique identifier for this action log
-  final String eventId;
-
-  /// ID of the action being executed
-  final String actionId;
 
   /// Type/class name of the action
   final String actionType;
@@ -83,14 +72,14 @@ class ActionLog extends DigiaLogEvent {
   final Duration? executionTime;
 
   /// ID of the parent log (for nested actions)
-  final String? parentEventId;
+  final String? parentActionId;
 
   /// Widget hierarchy and trigger information
-  final List<String> sourceChain;
+  final List<String>? sourceChain;
 
   /// Name of the trigger that initiated this action
   /// (e.g., 'onClick', 'onPageLoad')
-  final String triggerName;
+  final String? triggerName;
 
   /// Full action definition/configuration
   final Map<String, dynamic> actionDefinition;
@@ -112,12 +101,10 @@ class ActionLog extends DigiaLogEvent {
 
   /// Create a copy of this log with updated fields
   ActionLog copyWith({
-    String? eventId,
-    String? actionId,
     String? actionType,
     ActionStatus? status,
     Duration? executionTime,
-    String? parentEventId,
+    String? parentActionId,
     List<String>? sourceChain,
     String? triggerName,
     Map<String, dynamic>? actionDefinition,
@@ -135,13 +122,10 @@ class ActionLog extends DigiaLogEvent {
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       category: category ?? this.category,
-      tags: tags ?? this.tags,
-      eventId: eventId ?? this.eventId,
-      actionId: actionId ?? this.actionId,
       actionType: actionType ?? this.actionType,
       status: status ?? this.status,
       executionTime: executionTime ?? this.executionTime,
-      parentEventId: parentEventId ?? this.parentEventId,
+      parentActionId: parentActionId ?? this.parentActionId,
       sourceChain: sourceChain ?? this.sourceChain,
       triggerName: triggerName ?? this.triggerName,
       actionDefinition: actionDefinition ?? this.actionDefinition,
@@ -154,10 +138,10 @@ class ActionLog extends DigiaLogEvent {
   }
 
   /// Get formatted source chain for display
-  String get formattedSourceChain => sourceChain.join(' → ');
+  String get formattedSourceChain => sourceChain?.join(' → ') ?? '';
 
   /// Check if this is a top-level action (no parent)
-  bool get isTopLevel => parentEventId == null;
+  bool get isTopLevel => parentActionId == null;
 
   /// Check if this action is currently running
   bool get isRunning => status == ActionStatus.running;
@@ -177,10 +161,11 @@ class ActionLog extends DigiaLogEvent {
   @override
   String toString() {
     return 'ActionLog('
-        'eventId: $eventId, '
+        'id: $id, '
         'actionType: $actionType, '
         'status: $status, '
-        'sourceChain: $formattedSourceChain'
+        'sourceChain: ${sourceChain?.join(' → ') ?? ''}, '
+        'triggerName: $triggerName'
         ')';
   }
 

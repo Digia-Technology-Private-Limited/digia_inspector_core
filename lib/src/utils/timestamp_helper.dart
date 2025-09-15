@@ -60,13 +60,4 @@ class TimestampHelper {
           '${difference.inDays == 1 ? '' : 's'} ago';
     }
   }
-
-  /// Generates a unique ID based on current timestamp and random component.
-  ///
-  /// Example: "1705320625123_abc123"
-  static String generateId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final random = (timestamp % 100000).toString().padLeft(5, '0');
-    return '${timestamp}_$random';
-  }
 }

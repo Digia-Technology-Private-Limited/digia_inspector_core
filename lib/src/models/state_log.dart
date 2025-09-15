@@ -1,6 +1,6 @@
 import 'package:digia_inspector_core/src/contracts/state_observer.dart';
 import 'package:digia_inspector_core/src/models/digia_log_event.dart';
-import 'package:digia_inspector_core/src/utils/timestamp_helper.dart';
+import 'package:digia_inspector_core/src/utils/id_helper.dart';
 
 /// Represents a state-related log entry in the Digia framework.
 ///
@@ -113,7 +113,7 @@ class StateLog extends DigiaLogEvent {
   /// Creates a state log from JSON representation
   factory StateLog.fromJson(Map<String, dynamic> json) {
     return StateLog(
-      id: json['id'] as String? ?? TimestampHelper.generateId(),
+      id: json['id'] as String? ?? IdHelper.randomId(),
       stateType: StateType.values.firstWhere(
         (type) => type.value == json['stateType'],
       ),
