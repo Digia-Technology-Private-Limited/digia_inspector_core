@@ -1,13 +1,12 @@
 name: digia_inspector_core
 description: Core debugging interfaces and contracts for Digia applications.
-version: 0.0.1
+version: 1.0.0
 homepage: https://www.digia.tech
 repository: https://github.com/Digia-Technology-Private-Limited/digia_inspector_core
 issue_tracker: https://github.com/Digia-Technology-Private-Limited/digia_inspector_core/issues
 documentation: https://docs.digia.tech
 topics:
   [debugging, logging, monitoring, networking, observability, digia, inspector]
-publish_to: none
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

@@ -18,19 +18,6 @@ Digia Inspector Core is the backbone of the Digia debugging ecosystem. It provid
 - **🌐 Network Monitoring Contracts** - Built-in HTTP interceptor interfaces for comprehensive request/response tracking
 - **⚡ Action Observation** - Observer patterns for monitoring action execution and performance
 - **🏛️ State Monitoring** - Observer patterns for tracking state changes across the Digia framework
-- **📊 Structured Event System** - Type-safe log events with categorization, tagging, and search capabilities
-- **🔄 JSON Serialization** - Complete serialization support for log persistence and transmission
-- **⏰ Timestamp Utilities** - Consistent timestamp formatting and management
-
-### Key Features
-
-- 🎯 **Zero UI Dependencies** - Core contracts only, perfect for sharing across packages
-- 🔗 **Flexible Architecture** - Abstract interfaces allow custom implementations
-- 📱 **Cross-Platform** - Works seamlessly across Android, iOS, Web, and Desktop
-- 🚀 **High Performance** - Lightweight contracts with minimal overhead
-- 🧪 **Testing Ready** - No-op implementations for testing scenarios
-- 📚 **Well Documented** - Comprehensive documentation and examples
-- 🔍 **Type Safe** - Strongly typed interfaces throughout
 
 ## 📦 Installation
 
@@ -38,7 +25,7 @@ Add Digia Inspector Core to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  digia_inspector_core: ^0.0.1
+  digia_inspector_core: ^1.0.0
 ```
 
 Or use the Flutter CLI:
@@ -248,47 +235,6 @@ class MyStateObserver implements StateObserver {
 }
 ```
 
-## 🛠️ Usage Examples
-
-### Creating Custom Log Events
-
-Extend `DigiaLogEvent` to create custom log types:
-
-```dart
-class CustomUserActionEvent extends DigiaLogEvent {
-  final String userId;
-  final String action;
-  final Map<String, dynamic> actionData;
-
-  CustomUserActionEvent({
-    required this.userId,
-    required this.action,
-    required this.actionData,
-    String? category,
-    Set<String>? tags,
-  }) : super(
-         category: category ?? 'user_actions',
-         tags: tags ?? {'user', 'interaction'},
-       );
-
-  @override
-  String get eventType => 'user_action';
-
-  @override
-  String get title => 'User $action';
-
-  @override
-  String get description => 'User $userId performed $action';
-
-  @override
-  Map<String, dynamic> get metadata => {
-        'userId': userId,
-        'action': action,
-        'actionData': actionData,
-      };
-}
-```
-
 ### Using the No-Op Inspector
 
 For testing or when you want to disable logging:
@@ -298,103 +244,9 @@ final inspector = NoOpInspector();
 inspector.log(someEvent); // Does nothing
 ```
 
-### Searching and Filtering Events
-
-All log events support searching:
-
-```dart
-final events = inspector.logs;
-final filteredEvents = events.where((event) =>
-  event.matches('network') || event.category == 'api'
-).toList();
-```
-
-### JSON Serialization
-
-All log events can be serialized to/from JSON:
-
-```dart
-// Serialize
-final json = event.toJson();
-
-// Deserialize
-final restoredEvent = DigiaLogEvent.fromJson(json);
-
-// For custom events, implement fromJson
-static CustomUserActionEvent fromJson(Map<String, dynamic> json) {
-  return CustomUserActionEvent(
-    userId: json['metadata']['userId'],
-    action: json['metadata']['action'],
-    actionData: json['metadata']['actionData'],
-    category: json['category'],
-    tags: Set<String>.from(json['tags'] ?? []),
-  );
-}
-```
-
-## 🏗️ Architecture
-
-### Core Contracts
-
-- **`DigiaInspector`** - Main interface for receiving and handling log events
-- **`NetworkObserver`** - Contract for HTTP request/response monitoring
-- **`ActionObserver`** - Interface for monitoring action execution
-- **`StateObserver`** - Interface for monitoring state changes across the Digia framework
-
-### Event Models
-
-- **`DigiaLogEvent`** - Base class for all loggable events
-- **`NetworkRequestLog`** - HTTP request logging
-- **`NetworkResponseLog`** - HTTP response logging
-- **`NetworkErrorLog`** - HTTP error logging
-- **`ActionLog`** - Action execution logging with performance metrics
-- **`StateLog`** - State change logging
-
-### Utilities
-
-- **`TimestampHelper`** - Consistent timestamp formatting and management
-- **`ObservabilityContext`** - Context information for tracing and debugging
-
-## 📊 Event Types
-
-| Event Type           | Description               | Use Case                                  |
-| -------------------- | ------------------------- | ----------------------------------------- |
-| `NetworkRequestLog`  | HTTP request details      | API monitoring, debugging requests        |
-| `NetworkResponseLog` | HTTP response details     | API monitoring, response analysis         |
-| `NetworkErrorLog`    | HTTP error information    | Error tracking, debugging failures        |
-| `ActionLog`          | Action execution tracking | Performance monitoring, user interactions |
-| `StateLog`           | State change tracking     | State debugging, flow analysis            |
-| Custom Events        | Your custom event types   | Application-specific logging needs        |
-
-## 🧪 Testing
-
-Use the provided no-op implementations for testing:
-
-```dart
-void main() {
-  group('Inspector Tests', () {
-    late DigiaInspector inspector;
-
-    setUp(() {
-      inspector = NoOpInspector(); // Won't actually log anything
-    });
-
-    test('should handle log events gracefully', () {
-      final event = NetworkRequestLog(
-        url: Uri.parse('https://api.example.com'),
-        method: 'GET',
-        requestId: 'test-request-123',
-      );
-
-      expect(() => inspector.log(event), returnsNormally);
-    });
-  });
-}
-```
-
 ## 📄 License
 
-This project is licensed under the Business Source License 1.1 (BSL 1.1) - see the [LICENSE](LICENSE) file for details. The BSL 1.1 allows personal and commercial use with certain restrictions around competing platforms. On September 9, 2029, the license will automatically convert to Apache License 2.0.
+This project is licensed under the Business Source License 1.1 (BSL 1.1) - see the [LICENSE](LICENSE) file for details. The BSL 1.1 allows personal and commercial use with certain restrictions around competing platforms. On September 17, 2029, the license will automatically convert to Apache License 2.0.
 
 For commercial licensing inquiries or exceptions, please contact admin@digia.tech.
 
