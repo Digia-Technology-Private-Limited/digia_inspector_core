@@ -6,7 +6,7 @@ repository: https://github.com/Digia-Technology-Private-Limited/digia_inspector_
 issue_tracker: https://github.com/Digia-Technology-Private-Limited/digia_inspector_core/issues
 documentation: https://docs.digia.tech
 topics:
-  [debugging, logging, monitoring, networking, observability, digia, inspector]
+  [debugging, logging, monitoring, networking, observability]
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
